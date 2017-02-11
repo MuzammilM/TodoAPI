@@ -22,7 +22,11 @@ app.get('/', function(req, res) {
 app.get('/todos', middleware.requireAuthentication, function(req, res) {
 
 	var query = req.query;
-	var where = {};
+	var userid = req.user.get('id');
+	console.log('------------->'+userid);
+	var where = {
+		userId: userid
+	};
 
 	if (query.hasOwnProperty('completed') && query.completed === 'true'){
 		where.completed = true ;
@@ -83,7 +87,8 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	
 	db.todo.destroy({
 		where: {
-			id : todoId
+			id : todoId,
+			userId: req.user.get('id')
 		}
 	}).then(function (rowsDeleted){
 		if(rowsDeleted === 0){
@@ -160,7 +165,7 @@ app.post('/users/login', function(req,res){
 
 });
 
-db.sequelize.sync({force: true}).then(function(){
+db.sequelize.sync(/*{force: true}*/).then(function(){
 	app.listen(PORT, function() {
 	console.log('Express listening on ' + PORT + ' !');
 });	
